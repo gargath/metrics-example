@@ -1,6 +1,6 @@
 include .env
 
-BINARY := foo
+BINARY := server
 VERSION := $(shell git describe --always --dirty --tags 2>/dev/null || echo "undefined")
 ECHO := echo
 
@@ -58,4 +58,4 @@ test:
 
 # Build binary
 $(BINARY): fmt vet
-	GO111MODULE=on CGO_ENABLED=0 $(GO) build -o $(BINARY) -ldflags="-X main.VERSION=${VERSION}" github.com/gargath/template/cmd
+	GO111MODULE=on CGO_ENABLED=0 $(GO) build -o $(BINARY) -ldflags="-X main.VERSION=${VERSION}" github.com/gargath/metrics-example/cmd
