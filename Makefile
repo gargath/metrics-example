@@ -19,6 +19,7 @@ clean:
 .PHONY: distclean
 distclean: clean
 	rm -f .env
+	rm -f anaximander.db
 
 # Run go fmt against code
 .PHONY: fmt
@@ -58,4 +59,4 @@ test:
 
 # Build binary
 $(BINARY): fmt vet
-	GO111MODULE=on CGO_ENABLED=0 $(GO) build -o $(BINARY) -ldflags="-X main.VERSION=${VERSION}" github.com/gargath/metrics-example/cmd
+	GO111MODULE=on CGO_ENABLED=1 $(GO) build -o $(BINARY) -ldflags="-X main.VERSION=${VERSION}" github.com/gargath/metrics-example/cmd

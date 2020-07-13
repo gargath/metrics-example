@@ -11,13 +11,13 @@ import (
 
 var (
 	httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-		Name: "myapp_http_duration_seconds",
+		Name: "metrics_example_http_duration_seconds",
 		Help: "Duration of HTTP requests.",
 	}, []string{"path"})
 
 	responseCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "http_respose_total",
+			Name: "metrics_example_http_respose_total",
 			Help: "Number of HTTP responses sent.",
 		},
 		[]string{"code", "method", "path"},
