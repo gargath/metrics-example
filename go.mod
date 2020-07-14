@@ -6,6 +6,7 @@ require (
 	github.com/gargath/mongster v0.0.0-20200321224531-ec0d8d1b93c2
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/sessions v1.2.0
+	github.com/krpn/go-sql-db-stats v0.0.0-20190317140317-3531aaa357dc
 	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/prometheus/client_golang v0.9.3
 	github.com/satori/go.uuid v1.2.0

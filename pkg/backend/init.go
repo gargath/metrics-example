@@ -2,9 +2,20 @@ package backend
 
 import (
 	"database/sql"
+	"time"
 
 	// import SQLite3 driver
+	sqldbstats "github.com/krpn/go-sql-db-stats"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+var (
+	dbDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name: "metrics_example_backend_query_duration_seconds",
+		Help: "Duration of database queries.",
+	}, []string{"resource"})
 )
 
 func init() {
@@ -17,4 +28,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	_ = sqldbstats.StartCollectPrometheusMetrics(db, 30*time.Second, "entity_db")
+
 }

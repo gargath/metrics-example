@@ -11,4 +11,5 @@ func (a *API) AddRoutes(router *mux.Router) {
 	apiRouter.HandleFunc("/foo/{id}", a.GetFoo).Methods("GET")
 
 	apiRouter.HandleFunc("/user", a.AddUser).Methods("POST")
+	apiRouter.HandleFunc("/user", a.ListUsers).Methods("GET")
 }

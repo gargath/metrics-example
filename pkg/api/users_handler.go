@@ -12,6 +12,33 @@ import (
 	"github.com/gargath/metrics-example/pkg/backend"
 )
 
+//ListUsers handles GET requests for /user
+func (a *API) ListUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	users, err := backend.ListUsers()
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf("{\n\terror: \"failed to list users: %v \"\n}\n", err)))
+		log.Printf("failed to list users: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	entityJson, err := json.MarshalIndent(users, "", "\t")
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf("{\n\terror: \"failed to marshal json: %v \"\n}\n", err)))
+		log.Printf("failed to marshal JSON: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("{\n\tusers:\n"))
+	w.Write(entityJson)
+	w.Write([]byte("\n}\n"))
+}
+
 // AddUser handles POST requests to /user
 func (a *API) AddUser(w http.ResponseWriter, r *http.Request) {
 	var u backend.User
