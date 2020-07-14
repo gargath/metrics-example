@@ -1,3 +1,4 @@
 .env
 /server
 /anaximander.db
+*_unit_test.db

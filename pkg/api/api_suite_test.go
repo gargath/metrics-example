@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const DBNAME = "./unit_test.db"
+const DBNAME = "unit_test.db"
 
 func TestAPI(t *testing.T) {
 	RegisterFailHandler(Fail)

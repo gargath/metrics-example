@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/gargath/metrics-example/pkg/api"
 	"github.com/gargath/metrics-example/pkg/backend"
 	"github.com/gorilla/mux"
@@ -19,12 +21,13 @@ var _ = Describe("The GET user handler", func() {
 
 		BeforeEach(func() {
 			router := mux.NewRouter()
-			backend, err := backend.NewSqliteBackend(DBNAME)
+			dbfile := uuid.NewV4().String()
+			b, err := backend.NewSqliteBackend(dbfile + "_" + DBNAME)
 			Expect(err).NotTo(HaveOccurred())
-			_ = backend.DeleteUser("1234-5678-90123")
-			err = backend.AddUser(*newUser)
+
+			err = b.AddUser(*newUser)
 			Expect(err).NotTo(HaveOccurred())
-			api := api.NewAPI("/api", backend)
+			api := api.NewAPI("/api", b)
 			api.AddRoutes(router)
 
 			client = &http.Client{}
@@ -44,7 +47,7 @@ var _ = Describe("The GET user handler", func() {
 			By("returning HTTP status 200")
 			Expect(res.StatusCode).To(Equal(200))
 			By("setting the correct content type")
-
+			Expect(res.Header.Get("Content-Type")).To(Equal("application/json"))
 			By("returning the user as JSON")
 
 		})
@@ -53,10 +56,10 @@ var _ = Describe("The GET user handler", func() {
 			Expect(err).NotTo(HaveOccurred())
 			res, err := client.Do(req)
 			Expect(err).NotTo(HaveOccurred())
-
 			By("returning HTTP status 404")
 			Expect(res.StatusCode).To(Equal(404))
 			By("setting the correct content type")
+			Expect(res.Header.Get("Content-Type")).To(Equal("application/json"))
 			By("returning an error in the body")
 		})
 	})

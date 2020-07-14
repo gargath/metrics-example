@@ -4,10 +4,16 @@ BINARY := server
 VERSION := $(shell git describe --always --dirty --tags 2>/dev/null || echo "undefined")
 ECHO := echo
 
+
 .NOTPARALLEL:
 
 .PHONY: all
 all: test build
+
+.PHONY: check
+check: fmt lint vet
+	$(GINKGO) -p ./pkg/... ./cmd/... || find . -name \*_test.db -type f -delete
+	find . -name \*_test.db -type f -delete
 
 .PHONY: build
 build: clean $(BINARY)
@@ -15,6 +21,7 @@ build: clean $(BINARY)
 .PHONY: clean
 clean:
 	rm -f $(BINARY)
+	find . -name \*_test.db -type f -delete
 
 .PHONY: distclean
 distclean: clean
@@ -48,13 +55,10 @@ lint:
                 --tests ./...
 	@ $(ECHO)
 
-.PHONY: check
-check: fmt lint vet test
-
 .PHONY: test
 test:
 	@ $(ECHO) "\033[36mRunning test suite in Ginkgo\033[0m"
-	$(GINKGO) -p -race -randomizeAllSpecs ./pkg/... ./cmd/... || 	find . -name \*_test.db -type f -delete
+	$(GINKGO) -v -p -race -randomizeAllSpecs ./pkg/... ./cmd/... || find . -name \*_test.db -type f -delete
 	@ $(ECHO)
 	find . -name \*_test.db -type f -delete
 
