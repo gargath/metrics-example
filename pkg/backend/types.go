@@ -16,3 +16,7 @@ type User struct {
 // ErrAlreadyExists is a named error used when an entity to be added already exists
 // in the backend
 var ErrAlreadyExists = errors.New("entity already exists")
+
+// ErrDoesNotExist is a named error used to indicate that the entity an operation was requested
+// on does not exist
+var ErrDoesNotExist = errors.New("entity does not exist")

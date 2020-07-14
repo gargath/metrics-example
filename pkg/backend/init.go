@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
-	// import SQLite3 driver
 	sqldbstats "github.com/krpn/go-sql-db-stats"
+	// import SQLite3 driver
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
