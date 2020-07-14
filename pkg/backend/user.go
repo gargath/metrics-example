@@ -1,7 +1,6 @@
 package backend
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -21,11 +20,7 @@ func (b *SqliteBackend) ListUsers() ([]User, error) {
 func (b *SqliteBackend) listUsers() ([]User, error) {
 	var users []User
 
-	db, err := sql.Open("sqlite3", "./anaximander.db")
-	if err != nil {
-		return users, fmt.Errorf("Failed to open database: %v", err)
-	}
-	rows, err := db.Query("SELECT id, name, dob, address FROM users")
+	rows, err := b.db.Query("SELECT id, name, dob, address FROM users")
 	if err != nil {
 		return users, fmt.Errorf("Failed to retrieve users: %v", err)
 	}
@@ -65,11 +60,7 @@ func (b *SqliteBackend) AddUser(u User) error {
 }
 
 func (b *SqliteBackend) addUser(u User) error {
-	db, err := sql.Open("sqlite3", "./anaximander.db")
-	if err != nil {
-		return fmt.Errorf("Failed to open database: %v", err)
-	}
-	rows, err := db.Query("SELECT id FROM users WHERE id=?", u.ID)
+	rows, err := b.db.Query("SELECT id FROM users WHERE id=?", u.ID)
 	if err != nil {
 		return fmt.Errorf("Failed to check for existing user: %v", err)
 	}
@@ -80,7 +71,7 @@ func (b *SqliteBackend) addUser(u User) error {
 		}
 		return ErrAlreadyExists
 	}
-	result, err := db.Exec("INSERT INTO users(id, name, dob, address) VALUES (?,?,?,?)", u.ID, u.Name, u.DoB, u.Address)
+	result, err := b.db.Exec("INSERT INTO users(id, name, dob, address) VALUES (?,?,?,?)", u.ID, u.Name, u.DoB, u.Address)
 	if err != nil {
 		return fmt.Errorf("Failed to insert user: %v", err)
 	}
@@ -103,11 +94,7 @@ func (b *SqliteBackend) DeleteUser(id string) error {
 }
 
 func (b *SqliteBackend) deleteUser(id string) error {
-	db, err := sql.Open("sqlite3", "./anaximander.db")
-	if err != nil {
-		return fmt.Errorf("Failed to open database: %v", err)
-	}
-	rows, err := db.Query("SELECT id FROM users WHERE id=?", id)
+	rows, err := b.db.Query("SELECT id FROM users WHERE id=?", id)
 	if err != nil {
 		return fmt.Errorf("Failed to check for existing user: %v", err)
 	}
@@ -119,7 +106,7 @@ func (b *SqliteBackend) deleteUser(id string) error {
 	}
 	rows.Close()
 
-	result, err := db.Exec("DELETE FROM users WHERE id=?", id)
+	result, err := b.db.Exec("DELETE FROM users WHERE id=?", id)
 	if err != nil {
 		return fmt.Errorf("Failed to delete user: %v", err)
 	}
@@ -142,11 +129,7 @@ func (b *SqliteBackend) GetUser(id string) (*User, error) {
 }
 
 func (b *SqliteBackend) getUser(id string) (*User, error) {
-	db, err := sql.Open("sqlite3", "./anaximander.db")
-	if err != nil {
-		return nil, fmt.Errorf("Failed to open database: %v", err)
-	}
-	rows, err := db.Query("SELECT id, name, dob, address FROM users WHERE id=?", id)
+	rows, err := b.db.Query("SELECT id, name, dob, address FROM users WHERE id=?", id)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to check for existing user: %v", err)
 	}

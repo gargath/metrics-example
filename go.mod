@@ -8,6 +8,8 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/krpn/go-sql-db-stats v0.0.0-20190317140317-3531aaa357dc
 	github.com/mattn/go-sqlite3 v1.14.0
+	github.com/onsi/ginkgo v1.12.0
+	github.com/onsi/gomega v1.9.0
 	github.com/prometheus/client_golang v0.9.3
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/pflag v1.0.5

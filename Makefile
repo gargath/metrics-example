@@ -54,8 +54,9 @@ check: fmt lint vet test
 .PHONY: test
 test:
 	@ $(ECHO) "\033[36mRunning test suite in Ginkgo\033[0m"
-	$(GINKGO) -v -p -race -randomizeAllSpecs ./pkg/... ./cmd/...
+	$(GINKGO) -p -race -randomizeAllSpecs ./pkg/... ./cmd/... || 	find . -name \*_test.db -type f -delete
 	@ $(ECHO)
+	find . -name \*_test.db -type f -delete
 
 # Build binary
 $(BINARY): fmt vet
