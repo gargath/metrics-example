@@ -1,11 +1,11 @@
 package api
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
+	"github.com/gargath/metrics-example/pkg/backend"
 )
 
 // API provides the API and handler functions
 type API struct {
-	Prefix        string
-	ResponseCount *prometheus.CounterVec
+	Prefix string
+	b      backend.Backend
 }

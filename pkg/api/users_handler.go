@@ -17,7 +17,7 @@ import (
 func (a *API) ListUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	users, err := backend.ListUsers()
+	users, err := a.b.ListUsers()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("{\n\terror: \"failed to list users: %v \"\n}\n", err)))
@@ -82,7 +82,7 @@ func (a *API) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = backend.AddUser(u)
+	err = a.b.AddUser(u)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("{\n\terror: \"Failed to persist user: %v \"\n}\n", err)))
@@ -98,7 +98,7 @@ func (a *API) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := backend.DeleteUser(id)
+	err := a.b.DeleteUser(id)
 	if err != nil {
 		if err == backend.ErrDoesNotExist {
 			w.WriteHeader(http.StatusNotFound)
@@ -118,7 +118,7 @@ func (a *API) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	user, err := backend.GetUser(id)
+	user, err := a.b.GetUser(id)
 	if err != nil {
 		if err == backend.ErrDoesNotExist {
 			w.WriteHeader(http.StatusNotFound)

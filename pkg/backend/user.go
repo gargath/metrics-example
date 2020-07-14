@@ -11,14 +11,14 @@ import (
 )
 
 // ListUsers returns all users from the database
-func ListUsers() ([]User, error) {
+func (b *SqliteBackend) ListUsers() ([]User, error) {
 	timer := prometheus.NewTimer(dbDuration.WithLabelValues("user"))
-	u, e := listUsers()
+	u, e := b.listUsers()
 	timer.ObserveDuration()
 	return u, e
 }
 
-func listUsers() ([]User, error) {
+func (b *SqliteBackend) listUsers() ([]User, error) {
 	var users []User
 
 	db, err := sql.Open("sqlite3", "./anaximander.db")
@@ -57,14 +57,14 @@ func listUsers() ([]User, error) {
 }
 
 // AddUser will add a given user entity to the database
-func AddUser(u User) error {
+func (b *SqliteBackend) AddUser(u User) error {
 	timer := prometheus.NewTimer(dbDuration.WithLabelValues("user"))
-	e := addUser(u)
+	e := b.addUser(u)
 	timer.ObserveDuration()
 	return e
 }
 
-func addUser(u User) error {
+func (b *SqliteBackend) addUser(u User) error {
 	db, err := sql.Open("sqlite3", "./anaximander.db")
 	if err != nil {
 		return fmt.Errorf("Failed to open database: %v", err)
@@ -95,14 +95,14 @@ func addUser(u User) error {
 
 // DeleteUser removes the user with the given ID from the database
 // If a user with that ID does not exist, it returns ErrDoesNotExist
-func DeleteUser(id string) error {
+func (b *SqliteBackend) DeleteUser(id string) error {
 	timer := prometheus.NewTimer(dbDuration.WithLabelValues("user"))
-	e := deleteUser(id)
+	e := b.deleteUser(id)
 	timer.ObserveDuration()
 	return e
 }
 
-func deleteUser(id string) error {
+func (b *SqliteBackend) deleteUser(id string) error {
 	db, err := sql.Open("sqlite3", "./anaximander.db")
 	if err != nil {
 		return fmt.Errorf("Failed to open database: %v", err)
@@ -134,14 +134,14 @@ func deleteUser(id string) error {
 
 // GetUser returns the user with the given ID.
 // If no such user exists, it returns ErrDoesNotExist
-func GetUser(id string) (*User, error) {
+func (b *SqliteBackend) GetUser(id string) (*User, error) {
 	timer := prometheus.NewTimer(dbDuration.WithLabelValues("user"))
-	u, e := getUser(id)
+	u, e := b.getUser(id)
 	timer.ObserveDuration()
 	return u, e
 }
 
-func getUser(id string) (*User, error) {
+func (b *SqliteBackend) getUser(id string) (*User, error) {
 	db, err := sql.Open("sqlite3", "./anaximander.db")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open database: %v", err)

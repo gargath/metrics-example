@@ -18,17 +18,22 @@ var (
 	}, []string{"resource"})
 )
 
-func init() {
-	db, err := sql.Open("sqlite3", "./anaximander.db")
+// NewSqliteBackend returns a storage backend using sqlite
+func NewSqliteBackend(connStr string) (Backend, error) {
+	db, err := sql.Open("sqlite3", connStr)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS users ( id TEXT PRIMARY KEY, name TEXT NOT NULL, dob TEXT NOT NULL, address, TEXT );")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	_ = sqldbstats.StartCollectPrometheusMetrics(db, 30*time.Second, "entity_db")
 
+	b := &SqliteBackend{
+		db: db,
+	}
+	return b, nil
 }

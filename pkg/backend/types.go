@@ -1,9 +1,23 @@
 package backend
 
 import (
+	"database/sql"
 	"errors"
 	"time"
 )
+
+// Backend is the presistence backend used by the CRUD API
+type Backend interface {
+	AddUser(User) error
+	GetUser(string) (*User, error)
+	ListUsers() ([]User, error)
+	DeleteUser(string) error
+}
+
+// SqliteBackend is a backend implementation using sqlite
+type SqliteBackend struct {
+	db *sql.DB
+}
 
 // User represents a user entity
 type User struct {
