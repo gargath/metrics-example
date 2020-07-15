@@ -19,17 +19,13 @@ func (a *API) ListUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := a.b.ListUsers()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"failed to list users: %v \"\n}\n", err)))
-		log.Printf("failed to list users: %v", err)
+		writeError(w, fmt.Sprintf("failed to list users: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	entityJSON, err := json.MarshalIndent(users, "", "\t")
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"failed to marshal json: %v \"\n}\n", err)))
-		log.Printf("failed to marshal JSON: %v", err)
+		writeError(w, fmt.Sprintf("failed to marshal JSON: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -45,8 +41,7 @@ func (a *API) AddUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Header.Get("Content-Type") != "application/json" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"Content Type %s not supported \"\n}\n", r.Header.Get("Content-Type"))))
+		writeError(w, fmt.Sprintf("Content-Type %s not supported", r.Header.Get("Content-Type")), http.StatusBadRequest)
 		return
 	}
 	decoder := json.NewDecoder(r.Body)
@@ -56,15 +51,13 @@ func (a *API) AddUser(w http.ResponseWriter, r *http.Request) {
 		errors = append(errors, err)
 	}
 	if u.ID != "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprint("{\n\terror: \"User id must be empty \"\n}\n")))
+		writeError(w, "id must be empty", http.StatusBadRequest)
 		return
 	}
 
 	id := uuid.NewV4()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"Failed to allocate id for user: %v \"\n}\n", err)))
+		writeError(w, fmt.Sprintf("failed to allocate id for user: %v", err), http.StatusInternalServerError)
 		return
 	}
 	u.ID = id.String()
@@ -72,7 +65,7 @@ func (a *API) AddUser(w http.ResponseWriter, r *http.Request) {
 	if len(errors) > 0 {
 		log.Printf("error parsing %v as JSON:", r.Body)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("{\n\terror: \"malformed request document\"\n\terrors: [\n"))
+		w.Write([]byte("{\n\t\"error\": \"malformed request document\"\n\t\"errors\": [\n"))
 		errstrs := []string{}
 		for _, er := range errors {
 			errstrs = append(errstrs, er.Error())
@@ -84,8 +77,7 @@ func (a *API) AddUser(w http.ResponseWriter, r *http.Request) {
 
 	err = a.b.AddUser(u)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"Failed to persist user: %v \"\n}\n", err)))
+		writeError(w, fmt.Sprintf("failed to persist user: %v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Location", fmt.Sprintf("%s/user/%s", a.Prefix, u.ID))
@@ -101,12 +93,10 @@ func (a *API) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	err := a.b.DeleteUser(id)
 	if err != nil {
 		if err == backend.ErrDoesNotExist {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(fmt.Sprintf("{\n\terror: \"User with ID %v does not exist\"\n}\n", id)))
-			return
+			writeError(w, fmt.Sprintf("user with id %s does not exist", id), http.StatusNotFound)
+		} else {
+			writeError(w, fmt.Sprintf("failed to delete user: %v", err), http.StatusInternalServerError)
 		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"Failed to delete user: %v \"\n}\n", err)))
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -121,24 +111,29 @@ func (a *API) GetUser(w http.ResponseWriter, r *http.Request) {
 	user, err := a.b.GetUser(id)
 	if err != nil {
 		if err == backend.ErrDoesNotExist {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(fmt.Sprintf("{\n\terror: \"user with id %s does not exist\"\n}\n", id)))
-			return
+			writeError(w, fmt.Sprintf("user with id %s does not exist", id), http.StatusNotFound)
+		} else {
+			writeError(w, fmt.Sprintf("failed to get user: %v", err), http.StatusInternalServerError)
 		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"failed to get user: %v \"\n}\n", err)))
-		log.Printf("failed to get user: %v", err)
 		return
 	}
 
 	entityJSON, err := json.MarshalIndent(user, "", "\t")
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("{\n\terror: \"failed to marshal json: %v \"\n}\n", err)))
-		log.Printf("failed to marshal JSON: %v", err)
+		writeError(w, fmt.Sprintf("failed to marshal JSON: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(entityJSON)
+}
+
+func writeError(w http.ResponseWriter, message string, code int) {
+	w.WriteHeader(code)
+	errorResponse := &ErrorResponse{
+		Error: message,
+	}
+	errJSON, _ := json.MarshalIndent(errorResponse, "", "\t")
+	w.Write(errJSON)
+	log.Printf("ERROR: %s", message)
 }

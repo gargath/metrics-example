@@ -34,3 +34,22 @@ var ErrAlreadyExists = errors.New("entity already exists")
 // ErrDoesNotExist is a named error used to indicate that the entity an operation was requested
 // on does not exist
 var ErrDoesNotExist = errors.New("entity does not exist")
+
+// Equals returns true if the receiver user is field-equal to the argument user
+// TODO: Generate this
+func (u *User) Equals(comp *User) bool {
+	if u.ID != comp.ID {
+		return false
+	}
+	if u.Name != comp.Name {
+		return false
+	}
+	if u.Address != comp.Address {
+		return false
+	}
+	if u.DoB.Sub(comp.DoB) > 0 {
+		return false
+	}
+
+	return true
+}

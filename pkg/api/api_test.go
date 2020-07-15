@@ -2,16 +2,39 @@ package api_test
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gargath/metrics-example/pkg/api"
 	"github.com/gargath/metrics-example/pkg/backend"
 	"github.com/gorilla/mux"
+	uuid "github.com/satori/go.uuid"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Initializing the API", func() {
+
+	var router *mux.Router
+	var dbFileName string
+
+	BeforeEach(func() {
+		router = mux.NewRouter()
+		dbfile := uuid.NewV4().String()
+		dbFileName = dbfile + "_" + DBNAME
+		b, err := backend.NewSqliteBackend(dbFileName)
+		Expect(err).NotTo(HaveOccurred())
+
+		err = b.AddUser(*newUser)
+		Expect(err).NotTo(HaveOccurred())
+		api := api.NewAPI("/api", b)
+		api.AddRoutes(router)
+	})
+
+	AfterEach(func() {
+		os.Remove(dbFileName)
+	})
+
 	It("adds required routes", func() {
 
 		requiredRoutes := map[string][]string{
@@ -20,12 +43,6 @@ var _ = Describe("Initializing the API", func() {
 		}
 
 		routes := make(map[string][]string)
-
-		router := mux.NewRouter()
-		backend, err := backend.NewSqliteBackend(DBNAME)
-		Expect(err).NotTo(HaveOccurred())
-		api := api.NewAPI("/api", backend)
-		api.AddRoutes(router)
 
 		_ = router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 			tmpl, err := route.GetPathTemplate()
@@ -60,12 +77,6 @@ var _ = Describe("Initializing the API", func() {
 	It("uses the correct prefix", func() {
 
 		var found bool
-
-		router := mux.NewRouter()
-		backend, err := backend.NewSqliteBackend(DBNAME)
-		Expect(err).NotTo(HaveOccurred())
-		api := api.NewAPI("/api", backend)
-		api.AddRoutes(router)
 
 		_ = router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 			tmpl, err := route.GetPathTemplate()

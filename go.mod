@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/gargath/mongster v0.0.0-20200321224531-ec0d8d1b93c2
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/sessions v1.2.0
 	github.com/krpn/go-sql-db-stats v0.0.0-20190317140317-3531aaa357dc
